@@ -6,7 +6,7 @@ import pickle
 
 root = customtkinter.CTk()
 root.title("OpenAI Chat")
-root.geometry('700x700')
+root.geometry('700x600')
 #root.iconbitmap('https://tkinter.com/ai_lt.ico')
 
 customtkinter.set_appearance_mode("dark")
@@ -19,10 +19,28 @@ def clear():
     pass
 
 def key():
-    pass
+
+    filename = "api_key"
+
+    if os.path.isfile(filename):
+        input_file = open(filename, 'rb')
+        load_file = pickle.load(input_file)
+        api_entry.insert(END, load_file)
+    else:
+        input_file = open(filename, 'wb')
+        input_file.close()
+
+    root.geometry('700x750')
+    api_frame.pack(pady=30)
 
 def save_key():
-    pass
+
+    filename="api_key"
+    output_file = open(filename, 'wb')
+    pickle.dump(api_entry.get(), output_file)
+    api_entry.delete(0, END)
+    root.geometry('700x600')
+    api_frame.pack_forget()
 
 text_frame = customtkinter.CTkFrame(root)
 text_frame.pack(pady=20)
@@ -76,7 +94,6 @@ key_button.grid(row=0,column=2,padx=25)
 
 
 api_frame = customtkinter.CTkFrame(root, border_width=1)
-api_frame.pack(pady=30)
 
 api_entry = customtkinter.CTkEntry(api_frame,
                                     placeholder_text="Ender your API key",
