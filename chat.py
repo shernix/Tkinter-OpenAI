@@ -13,34 +13,76 @@ customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("dark-blue")
 
 def speak():
-    pass
+    if chat_entry.get():
+        api_entry.delete(0, END)
+        filename = "api_key"
+        try:
+
+            if os.path.isfile(filename):
+                input_file = open(filename, 'rb')
+                load_file = pickle.load(input_file)
+                
+                #Query OpenAI
+                openai.api_key = load_file
+                openai.Model.list()
+                response = openai.Completion.create(
+                    model = "text-davinci-003",
+                    prompt = chat_entry.get(),
+                    temperature = 0,
+                    max_tokens = 70,
+                    top_p = 1.0,
+                    frequency_penalty = 0.0,
+                    presence_penalty = 0.0
+                )
+                my_text.insert(END, (response["choices"][0]["text"]).strip())
+                my_text.insert(END, "\n\n")
+
+            else:
+                input_file = open(filename, 'wb')
+                input_file.close()
+                my_text.insert(END, "\n\n API key is needed\n\n")
+
+        except Exception as e:
+            my_text.insert(END, f"\n\n There was an error, could not open key. \n\n{e}")
+        else:
+            my_text.insert(END, "\n\n Please type something before sending it to Open AI\n\n")
 
 def clear():
-    pass
+    my_text.delete(1.0, END)
+    chat_entry.delete(0, END)
 
 def key():
-
+    api_entry.delete(0, END)
     filename = "api_key"
 
-    if os.path.isfile(filename):
-        input_file = open(filename, 'rb')
-        load_file = pickle.load(input_file)
-        api_entry.insert(END, load_file)
-    else:
-        input_file = open(filename, 'wb')
-        input_file.close()
+    try:
+
+        if os.path.isfile(filename):
+            input_file = open(filename, 'rb')
+            load_file = pickle.load(input_file)
+            api_entry.insert(END, load_file)
+        else:
+            input_file = open(filename, 'wb')
+            input_file.close()
+
+    except Exception as e:
+        my_text.insert(END, f"\n\n There was an error, could not open key. \n\n{e}")
 
     root.geometry('700x750')
     api_frame.pack(pady=30)
 
 def save_key():
 
-    filename="api_key"
-    output_file = open(filename, 'wb')
-    pickle.dump(api_entry.get(), output_file)
-    api_entry.delete(0, END)
-    root.geometry('700x600')
-    api_frame.pack_forget()
+    try:
+        filename="api_key"
+        output_file = open(filename, 'wb')
+        pickle.dump(api_entry.get(), output_file)
+        api_entry.delete(0, END)
+        root.geometry('700x600')
+        api_frame.pack_forget()
+
+    except Exception as e:
+        my_text.insert(END, f"\n\n There was an error \n\n{e}")
 
 text_frame = customtkinter.CTkFrame(root)
 text_frame.pack(pady=20)
